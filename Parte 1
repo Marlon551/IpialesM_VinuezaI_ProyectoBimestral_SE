@@ -1,0 +1,192 @@
+/*
+ * PROYECTO BIMESTRAL 1P
+ * Integrantes: Ipiales Marlon, Vinueza Israel 
+ * Parte 2
+ */
+
+#define tam_sig 100                                                                                  //Tamaño de la señal de entrada
+
+extern double flex_sensor[tam_sig];                                                                  //Llamada a la señal 
+int snl;                                                                                             //Resultado de la variable en el filtro
+double SenOri;                                                                                       //Señal original
+double SenFilt;                                                                                      //Señal filtrada
+double Out[tam_sig];                                                                                 //Vector de salida
+double Vec[5];                                                                                       //Datos almacenados
+
+void mediana_filtro (double *sen_in, double *salida_sen, int sen_tam, int filtro);
+void plot_signal(void);                                                                              //Metodo para graficar la señal 
+void setup() {
+  Serial.begin(9600); 
+}
+
+void loop() {
+  gauss_filtro ((double *)&flex_sensor[0], (double *)&Out[0], (int) tam_sig,5);                      //Llamada al metodo de gauss
+  plot_signal();                                                                                     //Linea para llamada del grafico
+  SNR();                                                                                            
+  delay(150);                                                                                       
+}
+
+void gauss_filtro (double *segin, double *Out, int segTam, int filtrado){                            //Metodo de gauss
+int i;                                                                                               //Variables
+int j;
+int k;                                                                                           
+  for(k=0;k<segTam;k++){                                                                             //Ciclo para el metodo de gauss
+    Vec[0]=segin[k+0];                                                                               //Ingreso de la señal a la posicion del vector 
+    Vec[1]=segin[k+1];                                                                         
+    Vec[2]=segin[k+2];                                                                          
+    Vec[3]=segin[k+3];                                                                              
+    Vec[4]=segin[k+4];                                                                             
+    i=0;                                                                                         
+    while(i<=3){                                                                                  
+      i++;                                                                                
+      j=i+1;                                                                                     
+      while(j<=4){
+        j++;
+        if(Vec[j]<Vec[i]){                                                                     
+          snl=Vec[j];                                                                             
+            Vec[j]=Vec[i];                                                              
+            Vec[i]=snl;                                                                 
+        }
+      }
+    }
+    Out[k]=Vec[1];                                                                                     //Salida
+  }
+  }
+
+void plot_signal(void){                                                                                //Metodo de grafica para la señal
+  int i;  
+  for(i=0;i<tam_sig;i++){                                                                           
+      Serial.print(flex_sensor[i]);                                                               
+      Serial.print(",");
+      Serial.print((Out[i]));                                                                       
+      Serial.println(",");
+    delay(10);                                                                                      
+  }
+}
+
+void SNR(){                                                                                           //Metodo señal ruido
+  int i;  
+  for(i=0;i<100;i++){                                                                               
+    SenOri=SenOri+flex_sensor[i];                                                                  
+    }
+   double SenOri1 = SenOri/100;                                                                     
+   for(i=0;i<100;i++){                                                                                 //Reccorrico de la señal filtrada
+    SenFilt=SenFilt+Out[i]; 
+    } 
+   double SenFilt2 = SenFilt/100;                                                                     //Division para datos de la señal filtrada
+   double Vout = (SenOri1*5)/1023;                                                                  
+   double vfilt = (SenFilt2*5)/1023;                                                                 
+   double snr = 20*log(vfilt/Vout);                                                                  //Calculo metrica
+  Serial.println("");                                                                              
+  Serial.println(String("Promedio en señal ingresada: ")+String(SenOri1));                           //Impresion de valores de promedio con voltaje de señal ingresa y filtrada
+  Serial.println(String("Promedio en señal filtrada: ")+String(SenFilt2));                           
+  Serial.println(String("Voltaje de salida señal ingresada: ")+String(Vout));                        
+  Serial.println(String("Voltaje de salida señal filtrada: ")+String(vfilt));                       
+  Serial.println(String("SNR: ")+String(snr)+String(" decibeles"));                                  
+  }
+
+
+
+  double flex_sensor[100]={                                                                          //Datos para señal
+229,
+145,
+131,
+131,
+120,
+109,
+84,
+79,
+50,
+36,
+18,
+18,
+22,
+46,
+31,
+57,
+70,
+55,
+37,
+40,
+48,
+58,
+73,
+85,
+116,
+126,
+114,
+127,
+119,
+126,
+132,
+142,
+150,
+145,
+125,
+113,
+101,
+83,
+49,
+36,
+22,
+26,
+22,
+21,
+17,
+26,
+27,
+41,
+39,
+42,
+50,
+60,
+53,
+77,
+107,
+127,
+131,
+133,
+132,
+136,
+124,
+106,
+130,
+129,
+94,
+125,
+101,
+92,
+73,
+41,
+24,
+24,
+24,
+21,
+25,
+13,
+13,
+13,
+30,
+44,
+39,
+48,
+56,
+61,
+67,
+102,
+124,
+121,
+117,
+125,
+125,
+127,
+127,
+140,
+143,
+130,
+120,
+106,
+104,
+83,
+
+};
