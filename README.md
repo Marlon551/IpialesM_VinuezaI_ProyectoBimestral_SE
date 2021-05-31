@@ -1,0 +1,2 @@
+# IpialesM_VinuezaI_ProyectoBimestral_SE
+IpialesM_VinuezaI_ProyectoBimestral_SE
